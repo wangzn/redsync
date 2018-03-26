@@ -43,7 +43,7 @@ func (m *Mutex) Lock() error {
 		if i != 0 {
 			time.Sleep(m.delay)
 		}
-		
+
 		start := time.Now()
 
 		n := 0
@@ -125,8 +125,8 @@ var deleteScript = redis.NewScript(1, `
 func (m *Mutex) release(pool Pool, value string) bool {
 	conn := pool.Get()
 	defer conn.Close()
-	status, err := deleteScript.Do(conn, m.name, value)
-	return err == nil && status != 0
+	reply, err := redis.Int64(conn.Do("DEL", m.name))
+	return err == nil && reply == 1
 }
 
 var touchScript = redis.NewScript(1, `
